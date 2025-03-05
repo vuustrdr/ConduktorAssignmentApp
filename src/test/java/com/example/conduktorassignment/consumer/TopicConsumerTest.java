@@ -1,11 +1,13 @@
 package com.example.conduktorassignment.consumer;
 
+import com.example.conduktorassignment.dto.Person;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.TopicPartition;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -25,16 +27,11 @@ public class TopicConsumerTest {
 
     private static final String TOPIC_NAME = "test-topic";
 
+    @InjectMocks
     private TopicConsumer topicConsumer;
 
     @Mock
     private KafkaConsumer<String, String> consumer;
-
-
-    @BeforeEach
-    void setUp() {
-        topicConsumer = new TopicConsumer(consumer);
-    }
 
     @Test
     void testConsume_ReturnsCorrectMessages() {
@@ -49,7 +46,7 @@ public class TopicConsumerTest {
 
         List<ConsumerRecord<String, String>> fakeRecords = new ArrayList<>();
         for (int i = 0; i < count; i++) {
-            fakeRecords.add(new ConsumerRecord<>(TOPIC_NAME, i % 3, offset + i, "key" + i, "message" + i));
+            fakeRecords.add(new ConsumerRecord<>(TOPIC_NAME, i % 3, offset + i, "key" + i, "{\"_id\":\"123\",\"name\":\"a\",\"dob\":\"1010\"}"));
         }
 
         ConsumerRecords<String, String> consumerRecords = new ConsumerRecords<>(Map.of(
@@ -60,7 +57,7 @@ public class TopicConsumerTest {
 
         when(consumer.poll(any(Duration.class))).thenReturn(consumerRecords);
 
-        List<String> results = topicConsumer.consume(TOPIC_NAME, offset, count);
+        List<Person> results = topicConsumer.consume(TOPIC_NAME, offset, count);
 
         verify(consumer, times(1)).poll(any(Duration.class));
         assertEquals(count, results.size());

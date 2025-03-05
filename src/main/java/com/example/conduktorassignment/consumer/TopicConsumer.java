@@ -1,5 +1,6 @@
 package com.example.conduktorassignment.consumer;
 
+import com.example.conduktorassignment.dto.Person;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -9,6 +10,8 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
@@ -43,7 +46,7 @@ public class TopicConsumer {
         this.consumer = consumer;
     }
 
-    public List<String> consume(String topicName, Integer offset, Integer count) {
+    public List<Person> consume(String topicName, Integer offset, Integer count) {
 
         LOGGER.info("Creating 3 partitions for Topic: {}", topicName);
 
@@ -64,13 +67,24 @@ public class TopicConsumer {
 
         ConsumerRecords<String, String> records = consumer.poll(Duration.of(1000, ChronoUnit.MILLIS));
 
-        List<String> results = new ArrayList<>();
+        List<Person> results = new ArrayList<>();
 
         // Limit for count requested
         Integer i = count;
         for (ConsumerRecord<String, String> record : records) {
+
             if (i == 0) break;
-            results.add(record.value());
+
+            try {
+                ObjectMapper objectMapper = new ObjectMapper();
+                JsonNode jsonNode = objectMapper.readTree(record.value());
+                results.add(new Person(jsonNode.get("_id").asText(),
+                        jsonNode.get("name").asText(),
+                        jsonNode.get("dob").asText()));
+            } catch (Exception e) {
+                LOGGER.error("Failed to map record: {}", record.value(), e);
+            }
+
             i--;
         }
 

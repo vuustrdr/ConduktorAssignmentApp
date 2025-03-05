@@ -2,6 +2,7 @@ package com.example.conduktorassignment.controller;
 
 
 import com.example.conduktorassignment.consumer.TopicConsumer;
+import com.example.conduktorassignment.dto.Person;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -33,59 +34,34 @@ public class ConsumerController {
 
     // Repeated code here just for the sake of clarity
     @GetMapping("/{topicName}")
-    public ResponseEntity<String> getRecordsFromTopic(@PathVariable String topicName, @RequestParam(required = false, defaultValue = "10") Integer count) {
+    public ResponseEntity<List<Person>> getRecordsFromTopic(@PathVariable String topicName, @RequestParam(required = false, defaultValue = "10") Integer count) {
 
         int defaultOffset = 10;
 
         LOGGER.info("Received request to get {} record from Topic: {} from Offset: {}", count, topicName, defaultOffset);
 
-        List<String> results = topicConsumer.consume(topicName, defaultOffset, count);
+        List<Person> results = topicConsumer.consume(topicName, defaultOffset, count);
 
         if (results.isEmpty()) {
             LOGGER.info("No records found from Topic: {} from Offset: {}", topicName, defaultOffset);
             ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        return ResponseEntity.status(HttpStatus.OK).body(prettify(results));
+        return ResponseEntity.status(HttpStatus.OK).body(results);
     }
 
     @GetMapping("/{topicName}/{offset}")
-    public ResponseEntity<String> getRecordsFromTopicWithOffset(@PathVariable String topicName, @PathVariable Integer offset, @RequestParam(required = false, defaultValue = "10") Integer count) {
+    public ResponseEntity<List<Person>> getRecordsFromTopicWithOffset(@PathVariable String topicName, @PathVariable Integer offset, @RequestParam(required = false, defaultValue = "10") Integer count) {
         LOGGER.info("Received request to get {} records from Topic: {} from Offset: {}", count, topicName, offset);
 
-        List<String> results = topicConsumer.consume(topicName, offset, count);
+        List<Person> results = topicConsumer.consume(topicName, offset, count);
 
         if (results.isEmpty()) {
             LOGGER.info("No records found from Topic: {} from Offset: {}", topicName, offset);
             ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        return ResponseEntity.status(HttpStatus.OK).body(prettify(results));
-    }
-
-    protected String prettify(List<String> results) {
-        ObjectMapper mapper = new ObjectMapper();
-        List<JsonNode> formattedJsonList = results.stream()
-                .map(json -> {
-                    try {
-                        return mapper.readTree(json);
-                    } catch (Exception e) {
-                        throw new RuntimeException("Invalid JSON format", e);
-                    }
-                })
-                .collect(Collectors.toList());
-
-        String prettyJson;
-        try {
-            prettyJson = mapper.writerWithDefaultPrettyPrinter()
-                    .writeValueAsString(formattedJsonList);
-        } catch (Exception e) {
-            throw new RuntimeException("Invalid JSON format", e);
-        }
-
-
-        return prettyJson;
-
+        return ResponseEntity.status(HttpStatus.OK).body(results);
     }
 
 }
