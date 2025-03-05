@@ -38,6 +38,11 @@ public class TopicConsumer {
         this.consumer = new KafkaConsumer<>(props);
     }
 
+    // For test
+    public TopicConsumer(KafkaConsumer<String, String> consumer) {
+        this.consumer = consumer;
+    }
+
     public List<String> consume(String topicName, Integer offset, Integer count) {
 
         LOGGER.info("Creating 3 partitions for Topic: {}", topicName);
@@ -73,7 +78,6 @@ public class TopicConsumer {
 
         return results;
     }
-
 
 
 }

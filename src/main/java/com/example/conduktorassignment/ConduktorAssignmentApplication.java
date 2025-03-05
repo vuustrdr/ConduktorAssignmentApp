@@ -12,6 +12,16 @@ public class ConduktorAssignmentApplication {
 
 }
 
-// Notes
+//// Notes
 // didnt realize the count separation to change for per partition
 // fetching all and iterating over
+// thinking around app
+
+//// Possible extensions
+// add a new partition
+// adding auth
+// ways of filtering through
+// upload something new
+// new rest endpoint (ask for specifics)
+// design extensions (ask for specifics)
+// testing edge cases

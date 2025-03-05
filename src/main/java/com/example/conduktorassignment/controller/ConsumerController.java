@@ -63,7 +63,7 @@ public class ConsumerController {
         return ResponseEntity.status(HttpStatus.OK).body(prettify(results));
     }
 
-    private String prettify(List<String> results) {
+    protected String prettify(List<String> results) {
         ObjectMapper mapper = new ObjectMapper();
         List<JsonNode> formattedJsonList = results.stream()
                 .map(json -> {
@@ -75,7 +75,7 @@ public class ConsumerController {
                 })
                 .collect(Collectors.toList());
 
-        String prettyJson = "{}";
+        String prettyJson;
         try {
             prettyJson = mapper.writerWithDefaultPrettyPrinter()
                     .writeValueAsString(formattedJsonList);
