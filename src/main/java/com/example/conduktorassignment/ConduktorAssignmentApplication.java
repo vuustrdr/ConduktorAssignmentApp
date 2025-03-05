@@ -14,8 +14,14 @@ public class ConduktorAssignmentApplication {
 
 //// Notes
 // didnt realize the count separation to change for per partition
-// fetching all and iterating over
+// fetching all and iterating over was initial idea
+// seemed really inefficient so looked into more consumer properties, decided to limit based on that
+// saw that it wasnt split well over partitions on smaller values so wanted to try and dynamically change max poll records on an even split
+// but thtas not possible without creating and recreating ocnsumers which is inefficient in itself.
 // thinking around app
+// adaption of more production thinking, shhould continusioly poll not just once, therefore cant return stuff
+// need something like a queue to store messages and retrieve synchronously
+
 
 //// Possible extensions
 // add a new partition

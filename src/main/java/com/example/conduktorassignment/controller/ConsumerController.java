@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -44,7 +46,7 @@ public class ConsumerController {
 
         if (results.isEmpty()) {
             LOGGER.info("No records found from Topic: {} from Offset: {}", topicName, defaultOffset);
-            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ArrayList<>());
         }
 
         return ResponseEntity.status(HttpStatus.OK).body(results);
@@ -57,8 +59,8 @@ public class ConsumerController {
         List<Person> results = topicConsumer.consume(topicName, offset, count);
 
         if (results.isEmpty()) {
-            LOGGER.info("No records found from Topic: {} from Offset: {}", topicName, offset);
-            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR);
+            LOGGER.info("No records found from Topic: {} to Offset: {}", topicName, offset);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ArrayList<>());
         }
 
         return ResponseEntity.status(HttpStatus.OK).body(results);
